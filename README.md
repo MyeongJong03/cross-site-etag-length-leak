@@ -27,7 +27,6 @@ PortSwigger Top 10 Web Hacking Techniques of 2025 중 6위에 선정된 **Cross-
 etag-leak-ctf/
 ├── docker-compose.yml
 ├── .env                  # 환경변수 (FLAG, ADMIN_PASSWORD, SESSION_SECRET)
-├── .env.example          # 환경변수 템플릿
 ├── victim/               # 공격 대상 서비스 (Node.js, Express, SQLite) — 포트 3000
 ├── attacker/             # exploit 작성 편집기 — 포트 4000
 └── bot/                  # admin 자동 로그인 및 exploit 실행 (Puppeteer) — 포트 3001
@@ -40,11 +39,6 @@ etag-leak-ctf/
 Docker와 Docker Compose가 설치된 환경에서 실행합니다.
 
 ```
-# 1. 환경변수 설정
-cp .env.example .env
-# .env 파일을 열어 FLAG, ADMIN_PASSWORD, SESSION_SECRET 값 입력
-
-# 2. 실행
 docker compose up --build -d
 ```
 
