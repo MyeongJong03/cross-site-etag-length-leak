@@ -84,7 +84,7 @@ oracle = false → userId <  target → hi = mid
 동일한 history.length oracle로 플래그를 한 글자씩 brute-force합니다.
 
 ```
-FLAG{ → FLAG{c → FLAG{cr → ... → FLAG{cr0ss_s1te_3tag_l3ngth_le4k}
+WSL{ → WSL{c → WSL{cr → ... → WSL{cr0ss_s1te_3tag_l3ngth_le4k}
 ```
 
 <br>

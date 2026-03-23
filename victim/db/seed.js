@@ -14,7 +14,7 @@ const db = new Database(DB_PATH);
 db.exec(fs.readFileSync(SCHEMA_PATH, 'utf8'));
 
 const ADMIN_ID = 0x800;
-const FLAG = process.env.FLAG || 'FLAG{PLACEHOLDER}';
+const FLAG = process.env.FLAG || 'WSL{PLACEHOLDER}';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 
 const adminHash = bcrypt.hashSync(ADMIN_PASSWORD, 12);
