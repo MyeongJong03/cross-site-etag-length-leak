@@ -1,6 +1,6 @@
 # Cross-Site ETag Length Leak
 
-PortSwigger Top 10 Web Hacking Techniques of 2025 중 6위에 선정된 **Cross-Site ETag Length Leak** 기법을 주제로 한 웹 해킹 CTF 문제입니다.
+PortSwigger Top 10 Web Hacking Techniques of 2025 중 6위에 선정된 **Cross-Site ETag Length Leak** 기법을 주제로 한 웹 해킹 문제입니다.
 
 비공개 메모 서비스 SecureNotes에서 관리자의 비밀 메모를 탈취하는 것이 목표입니다.
 
