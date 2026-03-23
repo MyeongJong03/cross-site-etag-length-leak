@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS users (
+  id       INTEGER PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  role     TEXT NOT NULL DEFAULT 'user'
+);
+
+CREATE TABLE IF NOT EXISTS notes (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id    INTEGER NOT NULL,
+  content    TEXT NOT NULL,
+  is_private INTEGER NOT NULL DEFAULT 1,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);

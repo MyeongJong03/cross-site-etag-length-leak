@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 대시보드 - SecureNotes</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+    .header {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #667eea;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .admin-badge {
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 12px;
+    }
+    .btn-notes {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #475569;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-notes:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .btn-logout {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #475569;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+    .section-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    .section-desc {
+      font-size: 15px;
+      color: #64748b;
+      margin-bottom: 32px;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .stat-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .flag-section {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 32px;
+    }
+    .flag-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 16px;
+    }
+    .flag-display {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      color: #1e293b;
+      margin-bottom: 16px;
+      word-break: break-all;
+      text-align: center;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .flag-placeholder {
+      color: #94a3b8;
+      font-style: italic;
+    }
+    .btn {
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+    }
+    .btn-primary:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+    .info-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e40af;
+      margin-bottom: 8px;
+    }
+    .info-text {
+      font-size: 14px;
+      color: #1e40af;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">SecureNotes <span class="admin-badge">ADMIN</span></div>
+    <div class="user-info">
+      <a href="/notes.html" class="btn-notes">내 메모</a>
+      <button class="btn-logout" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1 class="section-title">관리자 대시보드</h1>
+    <p class="section-desc">비공개 메모를 관리하세요.</p>
+
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-label">사용자 ID</div>
+        <div class="stat-value" id="userId">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">계정 유형</div>
+        <div class="stat-value" style="font-size: 24px;">관리자</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">접근 권한</div>
+        <div class="stat-value" style="font-size: 24px;">전체</div>
+      </div>
+    </div>
+
+    <div class="flag-section">
+      <div class="flag-title">🔐 비공개 메모</div>
+      <div class="flag-display" id="flagDisplay">
+        <span class="flag-placeholder">아래 버튼을 눌러 비공개 메모를 불러오세요</span>
+      </div>
+      <button class="btn btn-primary" id="loadFlagBtn" onclick="loadFlag()">비공개 메모 불러오기</button>
+
+      <div class="info-box">
+        <div class="info-title">ℹ️ 비공개 메모 안내</div>
+        <div class="info-text">
+          비공개 메모는 관리자 계정에서만 조회할 수 있습니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    // 인증 및 권한 확인
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/me', { credentials: 'include' });
+        if (!res.ok) {
+          window.location.href = '/login.html?next=/admin.html';
+          return;
+        }
+
+        currentUser = await res.json();
+
+        // admin이 아니면 리다이렉트
+        if (currentUser.role !== 'admin') {
+          window.location.href = '/notes.html';
+          return;
+        }
+
+        // User ID 표시
+        document.getElementById('userId').textContent = currentUser.id;
+      } catch (err) {
+        window.location.href = '/login.html?next=/admin.html';
+      }
+    }
+
+    // FLAG 로드
+    async function loadFlag() {
+      const btn = document.getElementById('loadFlagBtn');
+      const display = document.getElementById('flagDisplay');
+
+      btn.disabled = true;
+      btn.textContent = '불러오는 중...';
+      display.innerHTML = '<span class="flag-placeholder">불러오는 중...</span>';
+
+      try {
+        const res = await fetch('/admin/flag', { credentials: 'include' });
+        if (!res.ok) throw new Error('비공개 메모를 불러오지 못했습니다.');
+
+        const data = await res.json();
+        display.innerHTML = `<strong>${escapeHtml(data.flag)}</strong>`;
+      } catch (err) {
+        display.innerHTML = '<span class="flag-placeholder" style="color: #dc2626;">비공개 메모를 불러오지 못했습니다.</span>';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '다시 불러오기';
+      }
+    }
+
+    // HTML 이스케이프
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 로그아웃
+    async function logout() {
+      try {
+        await fetch('/api/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+      } catch (err) {
+        // 에러가 나도 로그아웃 처리
+      }
+      window.location.href = '/';
+    }
+
+    // 페이지 로드 시 인증 확인
+    checkAuth();
+  </script>
+</body>
+</html>

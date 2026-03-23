@@ -1,0 +1,39 @@
+services:
+  victim:
+    build: ./victim
+    environment:
+      FLAG: "${FLAG}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      SESSION_SECRET: "${SESSION_SECRET}"
+    networks:
+      - ctf-net
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  attacker:
+    build: ./attacker
+    networks:
+      - ctf-net
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+
+  bot:
+    build: ./bot
+    environment:
+      VICTIM_URL: "http://victim:3000"
+      ATTACKER_URL: "http://attacker:4000"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+    networks:
+      - ctf-net
+    ports:
+      - "3001:3001"
+    depends_on:
+      - victim
+      - attacker
+    restart: unless-stopped
+
+networks:
+  ctf-net:
+    driver: bridge
