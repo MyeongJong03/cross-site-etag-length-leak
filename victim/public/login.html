@@ -169,7 +169,9 @@
         if (res.ok && data.ok) {
           // 로그인 성공
           const params = new URLSearchParams(window.location.search);
-          const next = params.get('next') || '/notes.html';
+          const raw = params.get('next') || '/notes.html';
+          // 오픈 리다이렉트 방지: 상대 경로(/로 시작, //는 제외)만 허용
+          const next = (raw.startsWith('/') && !raw.startsWith('//')) ? raw : '/notes.html';
           window.location.href = next;
         } else {
           errorEl.textContent = data.error || '로그인 실패';

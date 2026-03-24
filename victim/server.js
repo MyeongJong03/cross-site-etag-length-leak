@@ -24,7 +24,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-session-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: 'lax' },
+  cookie: { httpOnly: true, sameSite: 'lax', secure: false },
 }));
 
 const loginLimiter = rateLimit({
@@ -98,6 +98,12 @@ app.post('/api/register', (req, res) => {
   if (!username || !password) {
     return res.status(400).json({ error: 'username and password required' });
   }
+  if (typeof username !== 'string' || username.length < 3 || username.length > 32) {
+    return res.status(400).json({ error: 'username은 3~32자여야 합니다.' });
+  }
+  if (typeof password !== 'string' || password.length < 4 || password.length > 128) {
+    return res.status(400).json({ error: 'password는 4~128자여야 합니다.' });
+  }
   try {
     const hash = bcrypt.hashSync(password, 10);
     const r = db.prepare(
@@ -133,6 +139,13 @@ app.post('/api/logout', (req, res) => {
   res.json({ ok: true });
 });
 
+// ETag 길이 경계 산출 근거 (Node.js 20 + Express 4.18, weak ETag 기준)
+//  Express weak ETag = body 크기를 hex 인코딩
+//  0x0fff = 4095 bytes → ETag 'fff-...'  (hex 3자리, ETag 헤더 35 bytes)
+//  0x1000 = 4096 bytes → ETag '1000-...' (hex 4자리, ETag 헤더 36 bytes)
+//  GTE_PAD: base JSON 크기 + pad 합산이 0x1000 이상이 되도록 조정
+//  LT_PAD:  base JSON 크기 + pad 합산이 0x0fff 이하가 되도록 조정
+//  버전이 달라지면 이 값도 재산출 필요
 const GTE_PAD = 'X'.repeat(4111);
 const LT_PAD = 'X'.repeat(4071);
 
@@ -157,10 +170,11 @@ app.get('/admin/flag/search', requireAdmin, (req, res) => {
     return res.end();
   }
 
+  const escaped = q.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
   const note = db.prepare(
     `SELECT content FROM notes
-     WHERE user_id = ? AND is_private = 1 AND content LIKE ?`
-  ).get(req.session.userId, q + '%');
+     WHERE user_id = ? AND is_private = 1 AND content LIKE ? ESCAPE '\\'`
+  ).get(req.session.userId, escaped + '%');
 
   if (!note) {
     return res.end();

@@ -73,6 +73,13 @@ docker compose logs -f attacker
 
 <br>
 
+## DB 초기화
+
+`docker compose up --build` 또는 `docker compose restart victim` 실행 시 DB가 초기 상태로 리셋됩니다. 
+플레이어가 테스트 중 생성한 계정/메모는 재시작 후 사라집니다. 이는 의도된 동작으로, 매 실행마다 깨끗한 환경을 보장합니다.
+
+<br>
+
 ## 주의 사항
 
 이 공격은 **타이밍 기반 side-channel**이므로 환경에 따라 결과가 불안정할 수 있습니다.

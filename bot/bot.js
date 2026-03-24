@@ -42,7 +42,6 @@ async function runBot(exploitUrl) {
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-popup-blocking',
-      '--disable-web-security',
     ],
   });
 
