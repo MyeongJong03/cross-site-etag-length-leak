@@ -10,8 +10,8 @@ const ATTACKER_URL = process.env.ATTACKER_URL || 'http://attacker:4000';
 const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'changeme';
 
 let lastVisit = 0;
-const COOLDOWN_MS = 60 * 1000;
-const BOT_TIMEOUT = 1200 * 1000;
+const COOLDOWN_MS = 15 * 1000;
+const BOT_TIMEOUT = 1500 * 1000;
 
 app.use(express.json());
 

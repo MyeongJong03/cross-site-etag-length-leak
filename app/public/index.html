@@ -5,14 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SecureNotes - 나만의 비공개 메모</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #eef0f5;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -21,86 +17,75 @@
     }
     .container {
       background: white;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      max-width: 600px;
+      border-radius: 12px;
+      border: 1px solid #dde0e6;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      max-width: 560px;
       width: 100%;
-      padding: 60px 40px;
+      padding: 48px 36px;
       text-align: center;
     }
     .logo {
-      font-size: 48px;
+      font-size: 36px;
       font-weight: 700;
-      color: #667eea;
-      margin-bottom: 16px;
-      letter-spacing: -1px;
+      color: #2d3748;
+      margin-bottom: 8px;
     }
     .tagline {
-      font-size: 18px;
-      color: #64748b;
-      margin-bottom: 48px;
+      font-size: 16px;
+      color: #718096;
+      margin-bottom: 40px;
     }
     .features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 24px;
-      margin-bottom: 48px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
       text-align: left;
     }
     .feature {
-      padding: 20px;
-      background: #f8fafc;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-    }
-    .feature-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
+      padding: 16px;
+      background: #f7f8fa;
+      border-radius: 8px;
+      border: 1px solid #e8eaef;
     }
     .feature-title {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
-      color: #1e293b;
+      color: #2d3748;
       margin-bottom: 4px;
     }
     .feature-desc {
-      font-size: 14px;
-      color: #64748b;
+      font-size: 13px;
+      color: #718096;
     }
     .actions {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       justify-content: center;
     }
     .btn {
-      padding: 14px 32px;
-      font-size: 16px;
+      padding: 12px 28px;
+      font-size: 15px;
       font-weight: 600;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
-      transition: all 0.2s;
+      transition: background 0.15s;
     }
     .btn-primary {
       background: #667eea;
       color: white;
     }
-    .btn-primary:hover {
-      background: #5568d3;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
+    .btn-primary:hover { background: #5a6fd6; }
     .btn-secondary {
       background: white;
       color: #667eea;
-      border: 2px solid #667eea;
+      border: 1.5px solid #667eea;
     }
-    .btn-secondary:hover {
-      background: #f8fafc;
-      transform: translateY(-2px);
-    }
+    .btn-secondary:hover { background: #f5f7ff; }
   </style>
 </head>
 <body>
@@ -110,18 +95,15 @@
 
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">🔒</div>
-        <div class="feature-title">암호화</div>
-        <div class="feature-desc">안전한 비공개 저장</div>
+        <div class="feature-title">비공개 저장</div>
+        <div class="feature-desc">암호화된 안전한 보관</div>
       </div>
       <div class="feature">
-        <div class="feature-icon">⚡</div>
         <div class="feature-title">빠른 접근</div>
         <div class="feature-desc">언제든지 즉시 확인</div>
       </div>
       <div class="feature">
-        <div class="feature-icon">☁️</div>
-        <div class="feature-title">동기화</div>
+        <div class="feature-title">클라우드 동기화</div>
         <div class="feature-desc">어디서든 접근 가능</div>
       </div>
     </div>
@@ -133,13 +115,10 @@
   </div>
 
   <script>
-    // 이미 로그인되어 있으면 notes 페이지로 리다이렉트
     fetch('/api/me', { credentials: 'include' })
       .then(res => res.ok ? res.json() : null)
       .then(user => {
-        if (user && user.id) {
-          window.location.href = '/notes.html';
-        }
+        if (user && user.id) window.location.href = '/notes.html';
       })
       .catch(() => {});
   </script>

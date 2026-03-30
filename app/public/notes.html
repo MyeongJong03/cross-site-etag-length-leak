@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>내 메모 - SecureNotes</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background: #f8fafc;
@@ -64,9 +60,7 @@
       text-decoration: none;
       transition: all 0.2s;
     }
-    .btn-admin:hover {
-      background: #5568d3;
-    }
+    .btn-admin:hover { background: #5a6fd6; }
     .container {
       max-width: 800px;
       margin: 40px auto;
@@ -78,6 +72,13 @@
       color: #1e293b;
       margin-bottom: 24px;
     }
+    .sub-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 40px;
+      margin-bottom: 16px;
+    }
     .new-note {
       background: white;
       border-radius: 12px;
@@ -85,9 +86,7 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       margin-bottom: 32px;
     }
-    .form-group {
-      margin-bottom: 16px;
-    }
+    .form-group { margin-bottom: 16px; }
     label {
       display: block;
       font-size: 14px;
@@ -138,29 +137,20 @@
       background: #667eea;
       color: white;
     }
-    .btn-primary:hover {
-      background: #5568d3;
-      transform: translateY(-1px);
-    }
+    .btn-primary:hover { background: #5a6fd6; }
     .btn-primary:disabled {
       background: #cbd5e1;
       cursor: not-allowed;
-      transform: none;
     }
-    .notes-list {
-      display: grid;
-      gap: 16px;
-    }
+    .notes-list { display: grid; gap: 16px; }
     .note-card {
       background: white;
       border-radius: 12px;
       padding: 20px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s;
+      transition: box-shadow 0.2s;
     }
-    .note-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+    .note-card:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
     .note-header {
       display: flex;
       justify-content: space-between;
@@ -174,14 +164,8 @@
       border-radius: 12px;
       display: inline-block;
     }
-    .badge-private {
-      background: #fef3c7;
-      color: #92400e;
-    }
-    .badge-public {
-      background: #dbeafe;
-      color: #1e40af;
-    }
+    .badge-private { background: #fef3c7; color: #92400e; }
+    .badge-public { background: #dbeafe; color: #1e40af; }
     .note-content {
       font-size: 15px;
       color: #334155;
@@ -190,10 +174,7 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
-    .note-footer {
-      display: flex;
-      justify-content: flex-end;
-    }
+    .note-footer { display: flex; justify-content: flex-end; }
     .btn-delete {
       padding: 6px 12px;
       font-size: 13px;
@@ -205,17 +186,45 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .btn-delete:hover {
-      background: #fecaca;
-    }
+    .btn-delete:hover { background: #fecaca; }
     .empty-state {
       text-align: center;
       padding: 60px 20px;
       color: #64748b;
     }
-    .empty-icon {
-      font-size: 64px;
+    .empty-icon { font-size: 48px; margin-bottom: 12px; color: #94a3b8; }
+    /* 회원번호 비교 */
+    .compare-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .compare-desc {
+      font-size: 14px;
+      color: #64748b;
       margin-bottom: 16px;
+    }
+    .compare-form {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .compare-input {
+      width: 200px;
+      padding: 10px 14px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .compare-input:focus { border-color: #667eea; }
+    .compare-result {
+      font-size: 14px;
+      font-weight: 500;
+      min-height: 20px;
     }
   </style>
 </head>
@@ -252,16 +261,25 @@
 
     <div id="notesList" class="notes-list">
       <div class="empty-state">
-        <div class="empty-icon">📝</div>
-        <p>메모를 불러오는 중...</p>
+        <div class="empty-icon">...</div>
+        <p>메모를 불러오는 중</p>
       </div>
+    </div>
+
+    <h2 class="sub-title">회원번호 비교</h2>
+    <div class="compare-card">
+      <p class="compare-desc">다른 회원의 번호를 입력해 가입 순서를 비교해보세요.</p>
+      <div class="compare-form">
+        <input type="number" id="compareTarget" placeholder="회원번호 입력" class="compare-input">
+        <button class="btn btn-primary" onclick="compareMember()" style="padding:10px 20px;">비교</button>
+      </div>
+      <div id="compareResult" class="compare-result"></div>
     </div>
   </div>
 
   <script>
     let currentUser = null;
 
-    // 로그인 확인 및 사용자 정보 로드
     async function checkAuth() {
       try {
         const res = await fetch('/api/me', { credentials: 'include' });
@@ -272,7 +290,6 @@
         currentUser = await res.json();
         document.getElementById('username').textContent = currentUser.username;
 
-        // admin이면 Admin 버튼 표시
         if (currentUser.role === 'admin') {
           document.getElementById('adminBtn').style.display = 'inline-block';
         }
@@ -283,33 +300,27 @@
       }
     }
 
-    // 메모 목록 로드
     async function loadNotes() {
       try {
         const res = await fetch('/api/notes', { credentials: 'include' });
-        if (!res.ok) throw new Error('메모를 불러오지 못했습니다.');
-
-        const notes = await res.json();
-        renderNotes(notes);
+        if (!res.ok) throw new Error();
+        renderNotes(await res.json());
       } catch (err) {
-        document.getElementById('notesList').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><p>메모를 불러오지 못했습니다.</p></div>';
+        document.getElementById('notesList').innerHTML = '<div class="empty-state"><p>메모를 불러오지 못했습니다.</p></div>';
       }
     }
 
-    // 메모 목록 렌더링
     function renderNotes(notes) {
       const container = document.getElementById('notesList');
-
       if (notes.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>작성된 메모가 없습니다.</p></div>';
+        container.innerHTML = '<div class="empty-state"><p>작성된 메모가 없습니다.</p></div>';
         return;
       }
-
       container.innerHTML = notes.map(note => `
         <div class="note-card">
           <div class="note-header">
             <span class="note-badge ${note.is_private ? 'badge-private' : 'badge-public'}">
-              ${note.is_private ? '🔒 비공개' : '🌐 공개'}
+              ${note.is_private ? '비공개' : '공개'}
             </span>
           </div>
           <div class="note-content">${escapeHtml(note.content)}</div>
@@ -320,17 +331,14 @@
       `).join('');
     }
 
-    // HTML 이스케이프
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
 
-    // 메모 작성
     document.getElementById('noteForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const content = document.getElementById('content').value;
       const is_private = document.getElementById('is_private').checked ? 1 : 0;
       const submitBtn = document.getElementById('submitBtn');
@@ -345,7 +353,6 @@
           credentials: 'include',
           body: JSON.stringify({ content, is_private })
         });
-
         if (res.ok) {
           document.getElementById('content').value = '';
           document.getElementById('is_private').checked = true;
@@ -361,40 +368,52 @@
       }
     });
 
-    // 메모 삭제
     async function deleteNote(id) {
       if (!confirm('이 메모를 삭제하시겠습니까?')) return;
-
       try {
-        const res = await fetch(`/api/notes/${id}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-
-        if (res.ok) {
-          loadNotes();
-        } else {
-          alert('메모 삭제에 실패했습니다.');
-        }
+        const res = await fetch(`/api/notes/${id}`, { method: 'DELETE', credentials: 'include' });
+        if (res.ok) loadNotes();
+        else alert('메모 삭제에 실패했습니다.');
       } catch (err) {
         alert('네트워크 오류가 발생했습니다.');
       }
     }
 
-    // 로그아웃
+    async function compareMember() {
+      const target = document.getElementById('compareTarget').value;
+      const resultEl = document.getElementById('compareResult');
+
+      if (!target) {
+        resultEl.textContent = '회원번호를 입력하세요.';
+        resultEl.style.color = '#991b1b';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/compare?target=${target}`, { credentials: 'include' });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+
+        if (data.result === 'gte') {
+          resultEl.textContent = `회원번호 ${target}번 이후에 가입된 계정입니다.`;
+          resultEl.style.color = '#065f46';
+        } else {
+          resultEl.textContent = `회원번호 ${target}번 이전에 가입된 계정입니다.`;
+          resultEl.style.color = '#1e40af';
+        }
+      } catch {
+        resultEl.textContent = '비교에 실패했습니다.';
+        resultEl.style.color = '#991b1b';
+      }
+    }
+
     async function logout() {
       try {
-        await fetch('/api/logout', {
-          method: 'POST',
-          credentials: 'include'
-        });
-      } catch (err) {
-        // 에러가 나도 로그아웃 처리
-      }
+        await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      } catch (err) {}
       window.location.href = '/';
     }
 
-    // 페이지 로드 시 인증 확인
     checkAuth();
   </script>
 </body>
