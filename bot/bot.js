@@ -13,6 +13,8 @@ let lastVisit = 0;
 const COOLDOWN_MS = 15 * 1000;
 const BOT_TIMEOUT = 1500 * 1000;
 
+let currentBrowser = null;
+
 app.use(express.json());
 
 app.post('/visit', async (req, res) => {
@@ -29,6 +31,12 @@ app.post('/visit', async (req, res) => {
   }
   lastVisit = now;
 
+  if (currentBrowser) {
+    console.log('[bot] terminating previous session');
+    try { await currentBrowser.close(); } catch (_) {}
+    currentBrowser = null;
+  }
+
   res.json({ ok: true, message: 'Bot dispatched' });
   runBot(url).catch(e => console.error('[bot] error:', e.message));
 });
@@ -44,6 +52,7 @@ async function runBot(exploitUrl) {
       '--disable-popup-blocking',
     ],
   });
+  currentBrowser = browser;
 
   try {
     const page = await browser.newPage();
@@ -74,6 +83,7 @@ async function runBot(exploitUrl) {
     console.log('[bot] done');
   } finally {
     await browser.close();
+    if (currentBrowser === browser) currentBrowser = null;
   }
 }
 

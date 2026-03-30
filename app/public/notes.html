@@ -34,6 +34,11 @@
       font-size: 14px;
       color: #64748b;
     }
+    .member-id {
+      font-size: 13px;
+      color: #94a3b8;
+      font-family: monospace;
+    }
     .btn-logout {
       padding: 8px 16px;
       font-size: 14px;
@@ -71,13 +76,6 @@
       font-weight: 700;
       color: #1e293b;
       margin-bottom: 24px;
-    }
-    .sub-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-top: 40px;
-      margin-bottom: 16px;
     }
     .new-note {
       background: white;
@@ -192,46 +190,13 @@
       padding: 60px 20px;
       color: #64748b;
     }
-    .empty-icon { font-size: 48px; margin-bottom: 12px; color: #94a3b8; }
-    /* 회원번호 비교 */
-    .compare-card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    .compare-desc {
-      font-size: 14px;
-      color: #64748b;
-      margin-bottom: 16px;
-    }
-    .compare-form {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .compare-input {
-      width: 200px;
-      padding: 10px 14px;
-      font-size: 14px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .compare-input:focus { border-color: #667eea; }
-    .compare-result {
-      font-size: 14px;
-      font-weight: 500;
-      min-height: 20px;
-    }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="logo">SecureNotes</div>
     <div class="user-info">
+      <span class="member-id" id="memberId"></span>
       <span class="username" id="username">불러오는 중...</span>
       <a href="/admin.html" class="btn-admin" id="adminBtn" style="display:none">관리자</a>
       <button class="btn-logout" onclick="logout()">로그아웃</button>
@@ -261,19 +226,8 @@
 
     <div id="notesList" class="notes-list">
       <div class="empty-state">
-        <div class="empty-icon">...</div>
-        <p>메모를 불러오는 중</p>
+        <p>메모를 불러오는 중...</p>
       </div>
-    </div>
-
-    <h2 class="sub-title">회원번호 비교</h2>
-    <div class="compare-card">
-      <p class="compare-desc">다른 회원의 번호를 입력해 가입 순서를 비교해보세요.</p>
-      <div class="compare-form">
-        <input type="number" id="compareTarget" placeholder="회원번호 입력" class="compare-input">
-        <button class="btn btn-primary" onclick="compareMember()" style="padding:10px 20px;">비교</button>
-      </div>
-      <div id="compareResult" class="compare-result"></div>
     </div>
   </div>
 
@@ -288,6 +242,7 @@
           return;
         }
         currentUser = await res.json();
+        document.getElementById('memberId').textContent = `#${currentUser.id}`;
         document.getElementById('username').textContent = currentUser.username;
 
         if (currentUser.role === 'admin') {
@@ -376,34 +331,6 @@
         else alert('메모 삭제에 실패했습니다.');
       } catch (err) {
         alert('네트워크 오류가 발생했습니다.');
-      }
-    }
-
-    async function compareMember() {
-      const target = document.getElementById('compareTarget').value;
-      const resultEl = document.getElementById('compareResult');
-
-      if (!target) {
-        resultEl.textContent = '회원번호를 입력하세요.';
-        resultEl.style.color = '#991b1b';
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/compare?target=${target}`, { credentials: 'include' });
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-
-        if (data.result === 'gte') {
-          resultEl.textContent = `회원번호 ${target}번 이후에 가입된 계정입니다.`;
-          resultEl.style.color = '#065f46';
-        } else {
-          resultEl.textContent = `회원번호 ${target}번 이전에 가입된 계정입니다.`;
-          resultEl.style.color = '#1e40af';
-        }
-      } catch {
-        resultEl.textContent = '비교에 실패했습니다.';
-        resultEl.style.color = '#991b1b';
       }
     }
 

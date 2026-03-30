@@ -85,8 +85,10 @@ docker compose logs -f attacker
 
 - 이 문제는 브라우저 동작에 의존하므로 호스트 환경에 따라 결과가 달라질 수 있습니다.
 - **Chromium 전용**: bot 컨테이너는 Puppeteer (Chromium)을 사용합니다. Firefox, Safari에서는 동작하지 않습니다.
-- 실패 시 봇을 재트리거하면 됩니다.
+- 실패 시 봇을 재트리거하면 됩니다. 새 요청 시 기존 봇 세션은 자동 종료됩니다.
 - 풀이자에게는 `app/server.js` 소스코드가 제공됩니다.
+
+> 이 프로젝트는 학습을 위한 환경입니다. 문제 배포 시에는 `.env`, `seed.js`, `solver/`, `docs/writeup.md`를 비공개로 관리해야 합니다.
 
 <br>
 

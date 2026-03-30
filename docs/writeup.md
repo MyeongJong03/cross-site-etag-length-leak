@@ -32,7 +32,7 @@ Cache-Control: private, max-age=0, must-revalidate
 
 ## /api/compare 엔드포인트
 
-메모 페이지의 "회원번호 비교" 기능에서 사용되는 API입니다.
+server.js 소스코드에서 발견할 수 있는 비교 API입니다.
 
 ```
 GET /api/compare?target=<N>
@@ -119,38 +119,39 @@ const flag                  = await bruteFlag(uid, basePad, baseQLen);
 
 전체 소요 시간은 약 15~20분이며, 네트워크 상태에 따라 달라질 수 있습니다.
 
+전체 exploit 코드는 [solver/exploit.html](../solver/exploit.html)을 참조하세요.
+
 <br>
 
-## GTE_PAD / LT_PAD 재산출
+## 응답 크기 조정 (COMPARE_PAD 재산출)
 
-server.js의 `GTE_PAD`, `LT_PAD` 상수는 **Node.js 20 + Express 4.18** 기준으로 계산된 값입니다. Node.js 또는 Express 버전이 바뀌면 ETag 계산 방식이 달라질 수 있으므로 재산출이 필요합니다.
+server.js는 `/api/compare` 응답 body에 trailing whitespace를 추가해 ETag 길이 경계(0xfff/0x1000)를 넘기도록 조정합니다.
 
-**원리**: Express weak ETag는 응답 body 크기를 hex로 인코딩합니다. `0xfff` (4095 bytes) 이하이면 hex 3자리, `0x1000` (4096 bytes) 이상이면 hex 4자리 ETag가 생성되며 헤더 길이가 1바이트 달라집니다. PAD 값은 각 분기의 응답 body가 이 경계 양쪽에 위치하도록 조정합니다.
+**원리**: Express weak ETag는 응답 body 크기를 hex로 인코딩합니다.
+- `{"result":"gte"}` = 16 bytes + padding → 4096 bytes (0x1000) → 4자리 hex ETag
+- `{"result":"lt"}`  = 15 bytes + padding → 4095 bytes (0xfff)  → 3자리 hex ETag
+
+`"gte"`(3글자)와 `"lt"`(2글자)의 자연스러운 1바이트 차이가 경계를 넘깁니다. 응답을 JSON.parse하면 `{"result":"gte"}` 또는 `{"result":"lt"}`만 보이므로, 패딩의 존재는 소스코드를 통해서만 확인할 수 있습니다.
 
 **재산출 절차**:
 
 1. 서버를 실행하고 일반 계정으로 로그인합니다.
 2. 각 분기의 응답 body 크기를 확인합니다.
    ```bash
-   # GTE 분기 (userId >= target)
    curl -s -o /dev/null -w "%{size_download}" \
      -b "connect.sid=<세션쿠키>" \
      "http://localhost:3000/api/compare?target=1"
-
-   # LT 분기 (userId < target)
-   curl -s -o /dev/null -w "%{size_download}" \
-     -b "connect.sid=<세션쿠키>" \
-     "http://localhost:3000/api/compare?target=9999"
    ```
-3. GTE 분기 body가 4096 이상, LT 분기 body가 4095 이하가 되도록 `GTE_PAD`, `LT_PAD`의 repeat 인수를 조정합니다.
-   - 현재 body 크기가 목표보다 N 작으면 PAD를 N 늘립니다.
-   - 현재 body 크기가 목표보다 N 크면 PAD를 N 줄입니다.
-4. 수정 후 서버를 재시작하고 ETag 헤더 길이를 확인합니다.
+3. GTE body가 4096, LT body가 4095가 되도록 `COMPARE_PAD` 길이를 조정합니다.
+4. ETag 헤더를 확인합니다.
    ```bash
    curl -I -b "connect.sid=<세션쿠키>" \
      "http://localhost:3000/api/compare?target=1"
-   # ETag: W/"1000-..." 이면 4자리(36바이트) — GTE 정상
-   # ETag: W/"fff-..."  이면 3자리(35바이트) — LT  정상
+   # ETag: W/"1000-..." → 4자리 hex (GTE 정상)
+
+   curl -I -b "connect.sid=<세션쿠키>" \
+     "http://localhost:3000/api/compare?target=9999"
+   # ETag: W/"fff-..."  → 3자리 hex (LT 정상)
    ```
 
 <br>

@@ -141,13 +141,13 @@ app.post('/api/logout', (req, res) => {
 
 // ETag 길이 경계 산출 근거 (Node.js 20 + Express 4.18, weak ETag 기준)
 //  Express weak ETag = body 크기를 hex 인코딩
-//  0x0fff = 4095 bytes → ETag 'fff-...'  (hex 3자리, ETag 헤더 35 bytes)
-//  0x1000 = 4096 bytes → ETag '1000-...' (hex 4자리, ETag 헤더 36 bytes)
-//  GTE_PAD: base JSON 크기 + pad 합산이 0x1000 이상이 되도록 조정
-//  LT_PAD:  base JSON 크기 + pad 합산이 0x0fff 이하가 되도록 조정
-//  버전이 달라지면 이 값도 재산출 필요
-const GTE_PAD = 'X'.repeat(4111);
-const LT_PAD = 'X'.repeat(4071);
+//  '{"result":"gte"}' = 16 bytes + 4080 = 4096 (0x1000) → ETag hex 4자리 (36 bytes)
+//  '{"result":"lt"}'  = 15 bytes + 4080 = 4095 (0x0fff) → ETag hex 3자리 (35 bytes)
+//  "gte"(3글자)와 "lt"(2글자)의 1바이트 차이로 경계를 넘김
+//  버전이 달라지면 COMPARE_PAD 값 재산출 필요
+const BODY_GTE = JSON.stringify({ result: 'gte' });
+const BODY_LT  = JSON.stringify({ result: 'lt' });
+const COMPARE_PAD = ' '.repeat(4080);
 
 app.get('/api/compare', requireLogin, (req, res) => {
   const target = parseInt(req.query.target, 10);
@@ -155,10 +155,11 @@ app.get('/api/compare', requireLogin, (req, res) => {
     return res.status(400).json({ error: 'target must be a number' });
   }
 
+  res.set('Content-Type', 'application/json');
   if (req.session.userId >= target) {
-    res.json({ result: 'gte', pad: GTE_PAD });
+    res.send(BODY_GTE + COMPARE_PAD);
   } else {
-    res.json({ result: 'lt', pad: LT_PAD });
+    res.send(BODY_LT + COMPARE_PAD);
   }
 });
 
