@@ -1,6 +1,6 @@
 services:
   victim:
-    build: ./victim
+    build: ./app
     environment:
       FLAG: "${FLAG}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD}"

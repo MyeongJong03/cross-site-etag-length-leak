@@ -2,7 +2,20 @@
 
 PortSwigger Top 10 Web Hacking Techniques of 2025 중 6위에 선정된 **Cross-Site ETag Length Leak** 기법을 주제로 한 웹 해킹 문제입니다.
 
-비공개 메모 서비스 SecureNotes에서 관리자의 비밀 메모를 탈취하는 것이 목표입니다.
+<br>
+
+## Challenge
+
+SecureNotes는 비공개 메모를 안전하게 저장하는 서비스입니다.
+관리자는 이 서비스에 중요한 비밀 메모를 남겨두었습니다.
+
+당신은 관리자 계정도, 서버 접근 권한도 없습니다.
+하지만 관리자가 당신의 페이지를 방문하게 만들 수는 있습니다.
+
+브라우저가 HTTP 캐시를 처리하는 방식을 이용해, 관리자의 비밀 메모를 탈취하세요.
+
+**Goal**: 관리자의 비공개 메모에 저장된 플래그를 획득하세요.
+**Flag format**: `WSL{...}`
 
 <br>
 
@@ -27,7 +40,7 @@ PortSwigger Top 10 Web Hacking Techniques of 2025 중 6위에 선정된 **Cross-
 etag-leak-ctf/
 ├── docker-compose.yml
 ├── .env                  # 환경변수 (FLAG, ADMIN_PASSWORD, SESSION_SECRET)
-├── victim/               # 공격 대상 서비스 (Node.js, Express, SQLite) — 포트 3000
+├── app/                  # 공격 대상 서비스 (Node.js, Express, SQLite) — 포트 3000
 ├── attacker/             # exploit 작성 편집기 — 포트 4000
 └── bot/                  # admin 자동 로그인 및 exploit 실행 (Puppeteer) — 포트 3001
 ```
@@ -75,7 +88,7 @@ docker compose logs -f attacker
 
 ## DB 초기화
 
-`docker compose up --build` 또는 `docker compose restart victim` 실행 시 DB가 초기 상태로 리셋됩니다. 
+`docker compose up --build` 또는 `docker compose restart victim` 실행 시 DB가 초기 상태로 리셋됩니다.
 플레이어가 테스트 중 생성한 계정/메모는 재시작 후 사라집니다. 이는 의도된 동작으로, 매 실행마다 깨끗한 환경을 보장합니다.
 
 <br>
@@ -86,7 +99,41 @@ docker compose logs -f attacker
 
 - 호스트 머신 부하 또는 Docker 네트워크 지연이 클 경우 oracle 오탐이 발생할 수 있습니다.
 - 실패 시 봇을 재트리거하면 됩니다. exploit 내부에 재시도 로직이 포함되어 있습니다.
-- Chromium 기반 브라우저에서만 동작합니다. (bot 컨테이너 내부 Chromium 사용)
+- **Chromium 전용**: 이 공격은 Chromium의 navigation history 동작(`window.history.length`)에 의존합니다. Firefox, Safari에서는 동작하지 않습니다. bot 컨테이너는 Puppeteer 21.6.1 (Chromium 119)을 사용합니다.
+
+<br>
+
+## GTE_PAD / LT_PAD 재산출
+
+server.js의 `GTE_PAD`, `LT_PAD` 상수는 **Node.js 20 + Express 4.18** 기준으로 계산된 값입니다. Node.js 또는 Express 버전이 바뀌면 ETag 계산 방식이 달라질 수 있으므로 재산출이 필요합니다.
+
+**원리**: Express weak ETag는 응답 body 크기를 hex로 인코딩합니다. `0xfff` (4095 bytes) 이하이면 hex 3자리, `0x1000` (4096 bytes) 이상이면 hex 4자리 ETag가 생성되며 헤더 길이가 1바이트 달라집니다. PAD 값은 각 분기의 응답 body가 이 경계 양쪽에 위치하도록 조정합니다.
+
+**재산출 절차**:
+
+1. 서버를 실행하고 일반 계정으로 로그인합니다.
+2. 각 분기의 응답 body 크기를 확인합니다.
+   ```bash
+   # GTE 분기 (userId >= target)
+   curl -s -o /dev/null -w "%{size_download}" \
+     -b "connect.sid=<세션쿠키>" \
+     "http://localhost:3000/api/compare?target=1"
+
+   # LT 분기 (userId < target)
+   curl -s -o /dev/null -w "%{size_download}" \
+     -b "connect.sid=<세션쿠키>" \
+     "http://localhost:3000/api/compare?target=9999"
+   ```
+3. GTE 분기 body가 4096 이상, LT 분기 body가 4095 이하가 되도록 `GTE_PAD`, `LT_PAD`의 repeat 인수를 조정합니다.
+   - 현재 body 크기가 목표보다 N 작으면 PAD를 N 늘립니다.
+   - 현재 body 크기가 목표보다 N 크면 PAD를 N 줄입니다.
+4. 수정 후 서버를 재시작하고 ETag 헤더 길이를 확인합니다.
+   ```bash
+   curl -I -b "connect.sid=<세션쿠키>" \
+     "http://localhost:3000/api/compare?target=1"
+   # ETag: W/"1000-..." 이면 4자리(36바이트) — GTE 정상
+   # ETag: W/"fff-..."  이면 3자리(35바이트) — LT  정상
+   ```
 
 <br>
 
@@ -94,3 +141,4 @@ docker compose logs -f attacker
 
 - https://blog.arkark.dev/2025/12/26/etag-length-leak
 - https://portswigger.net/research/top-10-web-hacking-techniques-of-2025
+- [Writeup](docs/writeup.md) — 스포일러 주의: 풀이를 시도한 후 참고하세요.
