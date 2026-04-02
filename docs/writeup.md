@@ -121,6 +121,10 @@ const flag                  = await bruteFlag(uid, basePad, baseQLen);
 
 전체 exploit 코드는 [solver/exploit.html](../solver/exploit.html)을 참조하세요.
 
+### 시연 영상
+
+https://github.com/user-attachments/assets/d9bfdff5-8875-4d6f-a385-ca740cd42ddc
+
 <br>
 
 ## 응답 크기 조정 (COMPARE_PAD 재산출)
